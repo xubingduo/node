@@ -3,31 +3,39 @@ var router = express.Router();
 var Category = require('../models/Categroy');
 var Content = require('../models/Content');
 
+//处理通用数据
+var data;
+
+router.use(function(req,res,next){
+    data = {
+        userInfo : req.userInfo,
+        Categories : [],
+    }
+
+    Category.find().then(function(Categories){
+        data.Categories = Categories;
+        next();
+    })
+})
+
 
 router.get('/',function(req,res,next){
 
-    var data = {
-         page : Number(req.query.page || 1),
-         limit : 4,
-         pages : 0,
-         userInfo : req.userInfo,
-         Categories : [],
-         category: req.query.category || '',
-         count : 0,
-    }
+    data.page = Number(req.query.page || 1);
+    data.limit = 4;
+    data.pages = 0;
+    data.category= req.query.category || '';
+    data.count = 0;
+
+
 
     var where = {};
-
     if(data.category){
         where.category = data.category;
     }
 
 
-    Category.find().then(function(Categories){
-        data.Categories = Categories;
-        return Content.where(where).count();
-
-    }).then(function(countnad){
+    Content.where(where).count().then(function(countnad){
         
         data.count  = countnad;
         data.pages = Math.ceil(data.count / data.limit);   //上取整
@@ -45,6 +53,18 @@ router.get('/',function(req,res,next){
         res.render('main/index',data)
     })
     
+})
+
+
+
+router.get('/view',function(req,res){
+    var contentId = req.query.contentid || '';
+    Content.findOne({
+        _id: contentId
+    }).then(function(content){
+        data.content = content;
+        res.render('main/view',data);
+    })
 })
 
 module.exports = router;
