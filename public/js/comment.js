@@ -1,8 +1,3 @@
-var prepage = 10;
-var page = 1;
-var pages = 0;
-var comments = [];
-
 //提交评论
 $('#messageBtn').on('click', function() {
     $.ajax({

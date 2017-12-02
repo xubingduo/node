@@ -14,6 +14,8 @@ router.use(function(req,res,next){
 
     Category.find().then(function(Categories){
         data.Categories = Categories;
+
+        // console.log(Categories)
         next();
     })
 })
@@ -49,7 +51,7 @@ router.get('/',function(req,res,next){
         return Content.where(where).find().sort({_id:-1}).limit(data.limit).skip(skip).populate(['category','user']).sort({addTime: -1});
 
     }).then(function(contents){
-        data.contents = contents
+        data.contents = contents;
         res.render('main/index',data)
     })
     
@@ -63,6 +65,8 @@ router.get('/view',function(req,res){
         _id: contentId
     }).then(function(content){
         data.content = content;
+        content.views++;
+        content.save();
         res.render('main/view',data);
     })
 })
